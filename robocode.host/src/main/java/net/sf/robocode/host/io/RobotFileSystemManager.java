@@ -295,7 +295,18 @@ public class RobotFileSystemManager {
 				os = null;
 				try {
 					is = jarFile.getInputStream(jarEntry);
-					os = new FileOutputStream(new File(parent, filename));
+
+					// Secure path handling
+					File outputFile = new File(parent, filename);
+					String canonicalParentPath = parent.getCanonicalPath() + File.separator;
+					String canonicalOutputPath = outputFile.getCanonicalPath();
+
+					// Ensure the output file is within the parent directory
+					if (!canonicalOutputPath.startsWith(canonicalParentPath)) {
+						throw new IOException("Invalid entry: " + filename);
+					}
+
+					os = new FileOutputStream(outputFile);
 					copyStream(is, os);
 				} finally {
 					FileUtil.cleanupStream(is);
