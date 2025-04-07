@@ -68,6 +68,16 @@ public class JarExtractor {
 		File out = new File(dest, entry.getName());
 		File parentDirectory = new File(out.getParent());
 
+		String canonicalTopParentPath = dest.getCanonicalPath() + File.separator;
+		String canonicalParentPath = parentDirectory.getCanonicalPath();
+		String canonicalOutputPath = out.getCanonicalPath();
+
+		// Ensure the output file is within the top parent directory
+		if (!canonicalParentPath.startsWith(canonicalTopParentPath)
+				|| !canonicalOutputPath.startsWith(canonicalTopParentPath)) {
+			throw new IOException("Invalid entry: " + out);
+		}
+
 		if (!parentDirectory.exists() && !parentDirectory.mkdirs()) {
 			Logger.logError("Cannot create dir: " + parentDirectory);
 		}
